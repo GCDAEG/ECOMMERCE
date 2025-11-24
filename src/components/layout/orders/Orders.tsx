@@ -2,16 +2,10 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
-
-export default function Orders({
-  orders = [
-    {
-      id: 1,
-      status: "enviado",
-      total: 50000,
-    },
-  ],
-}) {
+interface ordersProps {
+  orders: any[];
+}
+export const Orders: React.FC<ordersProps> = ({ orders }) => {
   return (
     <div className="p-4 space-y-4">
       <h1 className="text-xl font-semibold">My Orders</h1>
@@ -52,4 +46,4 @@ export default function Orders({
       </div>
     </div>
   );
-}
+};

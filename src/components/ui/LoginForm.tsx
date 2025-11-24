@@ -54,7 +54,7 @@ const LoginForm: React.FC<LoginFormProps> = ({}) => {
   };
 
   return (
-    <form onSubmit={handleLogin} className="p-2 w-80 md:w-96 rounded-md">
+    <form onSubmit={handleLogin} className="p-2 w-80 md:w-96 rounded-md ">
       <FieldSet>
         <FieldLegend>Login</FieldLegend>
         <FieldGroup>

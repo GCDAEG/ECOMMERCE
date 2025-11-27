@@ -4,8 +4,8 @@ interface PageProps {}
 
 const Page: React.FC<PageProps> = ({}) => {
   return (
-    <div className="min-h-screen w-full bg-gray100">
-      <h1>Ordenes</h1>
+    <div className="component-name">
+      <h1>Productos</h1>
     </div>
   );
 };

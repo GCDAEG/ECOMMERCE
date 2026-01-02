@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase/server";
+import { ProductFormState } from "@/components/ui/Products/productForm";
 
 export async function GET() {
   try {
     const supabase = await supabaseServer();
     const { data: products, error } = await supabase
       .from("products")
-      .select("*");
+      .select("id, name, price, description, slug, categories(*), product_variants (id, sku )");
 
     console.log("PRODUCTS:", products);
     console.log("SUPABASE ERROR:", error);
@@ -18,7 +19,7 @@ export async function GET() {
       );
     }
 
-    return NextResponse.json(products, { status: 200 });
+    return NextResponse.json({data:products}, { status: 200 });
   } catch (err) {
     console.error("ROUTE ERROR:", err);
     return NextResponse.json(
@@ -30,9 +31,9 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    const body: ProductFormState = await req.json();
 
-    const { name, slug, description, price } = body;
+    const { name, slug, description, price, categories = [] } = body;
 
     if (!name || !slug || !price) {
       return NextResponse.json(
@@ -43,7 +44,8 @@ export async function POST(req: Request) {
 
     const supabase = await supabaseServer();
 
-    const { data, error } = await supabase
+    // Crear producto
+    const { data: product, error: productError } = await supabase
       .from("products")
       .insert([
         {
@@ -56,9 +58,23 @@ export async function POST(req: Request) {
       .select()
       .single();
 
-    if (error) throw error;
+    if (productError) throw productError;
 
-    return NextResponse.json({ product: data }, { status: 201 });
+    // Insertar categorías
+    if (categories.length > 0) {
+      const { error: pivotError } = await supabase
+        .from("product_categories")
+        .insert(
+          categories.map((cat) => ({
+            product_id: product.id,
+            category_id: cat,
+          }))
+        );
+
+      if (pivotError) throw pivotError;
+    }
+
+    return NextResponse.json({ data:product }, { status: 201 });
   } catch (error: any) {
     console.error("Error creando producto:", error.message);
     return NextResponse.json(

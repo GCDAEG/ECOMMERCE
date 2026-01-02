@@ -7,9 +7,9 @@ import {
   FieldLabel,
   FieldLegend,
   FieldSet,
-} from "./field";
-import { Input } from "./input";
-import { Button } from "./button";
+} from "../field";
+import { Input } from "../input";
+import { Button } from "../button";
 import { createClient } from "@/lib/supabase/client";
 import { redirect } from "next/navigation";
 interface SignUpProps {}

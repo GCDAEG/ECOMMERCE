@@ -4,25 +4,22 @@ import { NextResponse } from "next/server";
 export async function GET() {
   try {
     const supabase = await supabaseServer();
-    const { data: products, error } = await supabase
+    const { data, error } = await supabase
       .from("categories")
-      .select("*");
+      .select("id, name, slug, products:product_categories(product:products(*))");
 
-    console.log("PRODUCTS:", products);
     console.log("SUPABASE ERROR:", error);
 
-    if (error) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json(products, { status: 200 });
-  } catch (err) {
-    console.error("ROUTE ERROR:", err);
+    if (error) throw error;
+    const cleanData = [...data.map(cat => ({
+      ...cat,
+      products: [...cat.products.map(product => product.product)]
+    }))]
+    return NextResponse.json({data:cleanData}, { status: 200 });
+  } catch (error) {
+    console.error("ROUTE ERROR:", error);
     return NextResponse.json(
-      { error: "Server crashed", details: String(err) },
+      { error },
       { status: 500 }
     );
   }

@@ -1,4 +1,4 @@
-import LoginForm from "@/components/ui/LoginForm";
+import LoginForm from "@/components/ui/Log/LoginForm";
 import { WholeWord } from "lucide-react";
 import React from "react";
 

@@ -1,4 +1,4 @@
-import SignUp from "@/components/ui/sign-up";
+import SignUp from "@/components/ui/Log/sign-up";
 import { WholeWord } from "lucide-react";
 import React from "react";
 

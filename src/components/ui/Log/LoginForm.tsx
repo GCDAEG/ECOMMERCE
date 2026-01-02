@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import { Button } from "./button";
+import { Button } from "../button";
 import { useStore } from "@/lib/stores/useStore";
 interface LoginFormProps {}
 const supabase = createClient();

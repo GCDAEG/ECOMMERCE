@@ -1,11 +1,9 @@
-import React from "react";
+import Products from "@/components/ui/Products/Products";
 
-interface PageProps {}
-
-const Page: React.FC<PageProps> = ({}) => {
+const Page = async ({}) => {
   return (
-    <div className="component-name">
-      <h1>Productos</h1>
+    <div className="component-name flex flex-col">
+      <Products />
     </div>
   );
 };

@@ -18,13 +18,18 @@ export async function GET() {
         name,
         attribute_values (
           id,
-          value
+          value,
+          attribute_id
         )
       `);
 
     if (error) throw error;
-
-    return NextResponse.json(data, { status: 200 });
+        const cleanData = [...data.map(att => ({
+          id:att.id,
+          name:att.name,
+          attributeValues:[...att.attribute_values.map(value => ({id:value.id, value:value.value}))]
+        }))]
+    return NextResponse.json({data:cleanData}, { status: 200 });
 
   } catch (err: any) {
     console.error("GET ERROR:", err);
@@ -40,22 +45,37 @@ export async function GET() {
 // body.type = "attribute" | "value"
 // ----------------------------------------------------
 export async function POST(req: Request) {
-    
   try{
-    
-    const  { name } = await req.json()
+    const  { name, newValues } = await req.json()
       if (!name) {
         return NextResponse.json({message:"No se coloco el nombre del atributo"}, { status:403 })
       }
       const supabase = await supabaseServer()
-      const {data, error} = await supabase.from("attributes").insert([{name:name}]).select().single()
+      const {data, error} = await supabase.from("attributes").insert([{name:name}]).select(`
+        id,
+        name
+      `).single()
 
       if (error) throw error;
       
-      return NextResponse.json({message:data}, {status: 200})
+      let attributeValues = []
+      if (newValues) {
+        const valuesToInsert = [...newValues.map(newValue => ({attribute_id:data.id, value:newValue}))]
+        const {data:values} = await supabase.from("attribute_values").insert(valuesToInsert).select()
+
+        attributeValues = values || []
+      }
+
+      const cleanData = {
+        ...data,
+        attributeValues
+      }
+      
+      return NextResponse.json({data:cleanData}, {status: 200})
   }catch(error:any){
     console.log("Hubo un error al crear el atributo", error.message)
     return NextResponse.json({error: "No se pudo crear el atributo"}, {status:500})
   }
 
 }
+

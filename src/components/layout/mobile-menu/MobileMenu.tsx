@@ -81,7 +81,7 @@ export default function MobileMenu() {
           <div
             onClick={() => setOpen(false)}
             className={cn(
-              "fixed inset-0 bg-black/40 transition-opacity md:hidden z-40",
+              "fixed inset-0 w-full bg-black/40 transition-opacity md:hidden z-40",
               open
                 ? "opacity-100 pointer-events-auto"
                 : "opacity-0 pointer-events-none"
@@ -89,53 +89,55 @@ export default function MobileMenu() {
           />
 
           {/* Panel del menú */}
-          <AnimatePresence initial={false}>
-            <motion.nav
-              initial={{
-                x: "-100%",
-              }}
-              animate={{
-                x: "0%",
-              }}
-              exit={{
-                x: "-100%",
-              }}
-              className={cn(
-                "fixed top-0 left-0 h-full w-72 bg-white shadow-xl z-50 p-5 transition-transform md:hidden"
-              )}
-            >
-              <HeaderMenu
-                setOpen={setOpen}
-                user={user}
-                handleLogout={handleLogout}
-              />
-              {/* Menú principal */}
-              <ul className="flex flex-col text-lg w-full">
-                <li className="flex w-full py-2 ">
-                  <Link
-                    className="flex items-center space-x-2"
-                    href="/"
-                    onClick={() => setOpen(false)}
-                  >
-                    <Home className="size-5" />
-                    <span>Inicio</span>
-                  </Link>
-                </li>
+          <AnimatePresence initial={open}>
+            {open && (
+              <motion.nav
+                initial={{
+                  x: "-100%",
+                }}
+                animate={{
+                  x: "0%",
+                }}
+                exit={{
+                  x: "-100%",
+                }}
+                className={cn(
+                  "fixed top-0 left-0 h-full  bg-white shadow-xl z-50 p-5 transition-transform duration-75 md:hidden"
+                )}
+              >
+                <HeaderMenu
+                  setOpen={setOpen}
+                  user={user}
+                  handleLogout={handleLogout}
+                />
+                {/* Menú principal */}
+                <ul className="flex flex-col text-lg w-full">
+                  <li className="flex w-full py-2 ">
+                    <Link
+                      className="flex items-center space-x-2"
+                      href="/"
+                      onClick={() => setOpen(false)}
+                    >
+                      <Home className="size-5" />
+                      <span>Inicio</span>
+                    </Link>
+                  </li>
 
-                <li className="w-full py-2">
-                  <Link
-                    className="flex items-center space-x-2"
-                    href="/cart"
-                    onClick={() => setOpen(false)}
-                  >
-                    <ShoppingCart className="size-5" />
-                    <span>Carrito</span>
-                  </Link>
-                </li>
-                <Categories />
-                {/* Opciones extra si el usuario está logueado */}
-              </ul>
-            </motion.nav>
+                  <li className="w-full py-2">
+                    <Link
+                      className="flex items-center space-x-2"
+                      href="/cart"
+                      onClick={() => setOpen(false)}
+                    >
+                      <ShoppingCart className="size-5" />
+                      <span>Carrito</span>
+                    </Link>
+                  </li>
+                  <Categories />
+                  {/* Opciones extra si el usuario está logueado */}
+                </ul>
+              </motion.nav>
+            )}
           </AnimatePresence>
         </div>
       </div>

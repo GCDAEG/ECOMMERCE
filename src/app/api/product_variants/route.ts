@@ -12,10 +12,7 @@ export async function GET() {
     console.log("SUPABASE ERROR:", error);
 
     if (error) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json(products, { status: 200 });
@@ -29,10 +26,9 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  
   try {
     const body = await req.json();
-console.log("Llega, se intenta crear la variante", body)
+    console.log("Llega, se intenta crear la variante", body);
     const {
       productName,
       product_id,
@@ -40,7 +36,7 @@ console.log("Llega, se intenta crear la variante", body)
       sku,
       price,
       stock,
-      autoSku
+      autoSku,
     } = body;
 
     const supabase = await supabaseServer();
@@ -49,9 +45,9 @@ console.log("Llega, se intenta crear la variante", body)
     const finalSku = autoSku
       ? generateSku(productName, attributesSelected)
       : sku;
-    console.log("SKU FINAL", finalSku)
+    console.log("SKU FINAL", finalSku);
     if (!finalSku || !price || !stock) {
-      console.log("Faltan campos obligatorios", price, stock, finalSku)
+      console.log("Faltan campos obligatorios", price, stock, finalSku);
       return NextResponse.json(
         { error: "Faltan campos obligatorios" },
         { status: 400 }
@@ -66,7 +62,7 @@ console.log("Llega, se intenta crear la variante", body)
           sku: finalSku,
           price,
           stock,
-          product_id:product_id
+          product_id: product_id,
         },
       ])
       .select()
@@ -75,12 +71,12 @@ console.log("Llega, se intenta crear la variante", body)
     if (variantError) throw variantError;
 
     // 3️⃣ Extraer todos los attribute_value_ids seleccionados
-    const valuesToInsert = attributesSelected.flatMap((att) =>{
+    const valuesToInsert = attributesSelected.flatMap((att) => {
       return {
         variant_id: variant.id,
         attribute_value_id: att.selectedValue.id,
-      }}
-    );
+      };
+    });
 
     // Si no seleccionó atributos, no insertar nada
     if (valuesToInsert.length > 0) {
@@ -115,7 +111,7 @@ export async function PATCH(req: Request) {
       price,
       stock,
       editAttributes,
-      autoSku // default vacío
+      autoSku, // default vacío
     } = body;
 
     if (!idVariant) {
@@ -176,7 +172,7 @@ export async function PATCH(req: Request) {
 
       // Preparar nuevos
       const valuesToInsert = attributesSelected.map((att: any) => ({
-        idVariant,
+        variant_id: idVariant,
         attribute_value_id: att.selectedValue.id, // ← asegurate de que att.id exista y sea válido
       }));
 

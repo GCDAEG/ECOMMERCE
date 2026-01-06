@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "../table";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "../button";
 import { Skeleton } from "../skeleton";
 import { useRouter } from "next/navigation";
@@ -17,7 +17,7 @@ import ProductForm, { ProductFormState } from "./productForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../dialog";
 import { Badge } from "../badge";
 import { createColumnHelper } from "@tanstack/react-table";
-import { DataTable } from "@/components/DataTable";
+import { DataTable } from "@/components/ui/DataTable/DataTable";
 const Products = ({}) => {
   const [products, setProducts] = useState<BaseProduct[]>([]);
   const [createProductForm, setCreateProductForm] = useState(false);
@@ -139,64 +139,93 @@ const Products = ({}) => {
   //COLUMNAS DE LA TABLA
   //COLUMNAS DE LA TABLA
   const columnHelper = createColumnHelper<BaseProduct>();
-  const columns = [
-    columnHelper.accessor("name", { header: "Nombre" }),
-    columnHelper.accessor("categories", {
-      header: "Categorias",
-      cell: (info) =>
-        info.getValue().map((cat) => <Badge key={cat.id}>{cat.name}</Badge>),
-    }),
-    columnHelper.accessor("product_variants", {
-      header: "Variantes",
-      cell: (info) =>
-        info
-          .getValue()
-          .map((variant) => <Badge key={variant.id}>{variant.sku}</Badge>),
-    }),
-    {
-      id: "actions",
-      header: () => <span className="block text-center">Acciones</span>,
-      size: 200, // Exacto para 2 botones con iconos
-      maxSize: 220, // No crece
-      minSize: 120, // No se achica
-      enableResizing: false,
-      enableSorting: false,
-      meta: { headerClassName: "text-center", cellClassName: "text-center" },
-      cell: ({
-        row: { original: product },
-      }: {
-        row: { original: BaseProduct };
-      }) => {
-        return (
-          <div className=" flex justify-end space-x-2">
-            <Button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setProductToEdit({ initialData: product, edit: true });
-              }}
-              className="bg-gray-500"
-            >
-              Editar
-            </Button>
-            <Button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setConfirmDelete(() => ({
-                  dialog: true,
-                  category: { name: product.name, id: product.id },
-                }));
-              }}
-              className="bg-gray-700"
-            >
-              Eliminar
-            </Button>
-          </div>
-        );
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor("name", {
+        header: "Nombre",
+        meta: { label: "Nombre" },
+        enableGlobalFilter: true,
+      }),
+      columnHelper.accessor(
+        (row) => row.categories.map((cat) => cat.name).join(""),
+        {
+          header: "Categorias",
+          meta: { label: "Categorias" },
+          cell: ({
+            row: {
+              original: { categories },
+            },
+          }) =>
+            categories.map((cat) => (
+              <Badge key={cat.id} className="text-xs">
+                {cat.name}
+              </Badge>
+            )),
+        }
+      ),
+      columnHelper.accessor(
+        (row) => row.product_variants.map((variant) => variant.sku).join(""),
+        {
+          header: "Variantes",
+          meta: { label: "Variantes" },
+          cell: ({
+            row: {
+              original: { product_variants },
+            },
+          }) =>
+            product_variants.map((variant) => (
+              <Badge key={variant.id} className="text-xs">
+                {variant.sku}
+              </Badge>
+            )),
+        }
+      ),
+      {
+        id: "actions",
+        header: () => <span className="block text-center">Acciones</span>,
+        size: 200, // Exacto para 2 botones con iconos
+        maxSize: 220, // No crece
+        minSize: 120, // No se achica
+        enableResizing: false,
+        enableSorting: false,
+        meta: { headerClassName: "text-center", cellClassName: "text-center" },
+        cell: ({
+          row: { original: product },
+        }: {
+          row: { original: BaseProduct };
+        }) => {
+          return (
+            <div className=" flex justify-end space-x-2">
+              <Button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setProductToEdit({ initialData: product, edit: true });
+                }}
+                className="bg-gray-500"
+              >
+                Editar
+              </Button>
+              <Button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setConfirmDelete(() => ({
+                    dialog: true,
+                    category: { name: product.name, id: product.id },
+                  }));
+                }}
+                className="bg-gray-700"
+              >
+                Eliminar
+              </Button>
+            </div>
+          );
+        },
       },
-    },
-  ];
+    ],
+    []
+  );
   useEffect(() => {
     const loadProducts = async () => {
       try {

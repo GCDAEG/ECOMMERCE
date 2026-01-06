@@ -32,7 +32,7 @@ import { useRouter } from "next/navigation";
 import AttributeForm, { FormAttributeTypes } from "./AttributeForm";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Badge } from "../badge";
-import { DataTable } from "@/components/DataTable";
+import { DataTable } from "@/components/ui/DataTable/DataTable";
 
 const Attributes = ({}) => {
   const [attributesWithValues, setAttributesWithValues] = useState<

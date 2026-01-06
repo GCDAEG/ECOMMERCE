@@ -53,7 +53,7 @@ const VariantForm: React.FC<VariantFormProps> = ({ idVariant, onSubmit }) => {
     Set<string>
   >(new Set([]));
   const allAttributes = useRef<AttributeWithValues[]>([]);
-  const [autoSku, setAutoSku] = useState<CheckedState>(false);
+  const [autoSku, setAutoSku] = useState<CheckedState>(true);
   const [error, setError] = useState<{ ok: boolean; message: string }>({
     ok: false,
     message: "",
@@ -63,17 +63,33 @@ const VariantForm: React.FC<VariantFormProps> = ({ idVariant, onSubmit }) => {
   ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+  const verifChangesInAttributes = () => {
+    const initialValues = initialAttributes.current;
+    const formAttributes = form.attributesSelected;
 
+    if (initialValues.length !== formAttributes.length) {
+      return true;
+    }
+
+    return initialValues.some((initial) => {
+      const current = formAttributes.find((attr) => attr.id === initial.id);
+
+      if (!current) return true;
+
+      return current.selectedValue.id !== initial.selectedValue.id;
+    });
+  };
   //Enviar formulario al backend
   const handleSubmit = async () => {
     const defaultForm = { ...form };
+    const changesInAttributes = verifChangesInAttributes();
     if (autoSku) {
       defaultForm.autoSku = true;
     }
     if (idVariant) {
       defaultForm.idVariant = idVariant;
     }
-    if (initialAttributes.current.length !== form.attributesSelected.length) {
+    if (changesInAttributes) {
       defaultForm.editAttributes = true;
     }
     const response = await onSubmit(defaultForm);

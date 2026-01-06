@@ -3,17 +3,6 @@ import { BaseProduct, CleanProduct, CleanVariant } from "@/lib/types/dbtypes";
 import { UUID } from "crypto";
 import React, { useEffect, useState } from "react";
 import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../table";
-
-import ProductVariantForm from "./product_variants/ProductVariantForm";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -22,14 +11,15 @@ import {
   DialogTrigger,
 } from "../dialog";
 import { Button } from "../button";
-import { Badge } from "../badge";
-import { ScrollArea, ScrollBar } from "../scroll-area";
-import { DataTable } from "@/components/DataTable";
+
+import { DataTable } from "@/components/ui/DataTable/DataTable";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Skeleton } from "../skeleton";
 import VariantForm, {
   VariantFormTypes,
 } from "./product_variants/Form/VariantForm";
+import { FieldSeparator } from "../field";
+import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 
 interface ProductDetailsProps {
   id: UUID;
@@ -114,17 +104,49 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ id }) => {
   //COLUMNAS DE LA TABLA
   const columnHelper = createColumnHelper<CleanVariant>();
   const columns = [
-    columnHelper.accessor("sku", { header: "Sku" }),
-    columnHelper.accessor("price", { header: "Precio" }),
-    columnHelper.accessor("attributes", {
-      header: "Valores",
-      cell: (info) =>
-        info
-          .getValue()
-          .map((attribute) => (
-            <Badge key={attribute.attributeId}>{attribute.value}</Badge>
-          )),
+    columnHelper.accessor("sku", { header: "Sku", meta: { label: "Sku" } }),
+    columnHelper.accessor("price", {
+      header: "Precio",
+      meta: { label: "Precio" },
     }),
+    columnHelper.accessor("stock", {
+      header: "Stock",
+      meta: { label: "Stock" },
+    }),
+
+    columnHelper.accessor(
+      (row) => row.attributes.map((cat) => cat.name).join(""),
+      {
+        header: "Valores",
+        meta: { label: "Attributos" },
+        cell: ({
+          row: {
+            original: { attributes },
+          },
+        }) => (
+          <Popover key={attributes.length}>
+            <PopoverTrigger asChild>
+              <button className="text-xs w-fit cursor-pointer underline">
+                Ver atributos({attributes.length})
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-fit text-xs p-2">
+              <ul>
+                {attributes.map((attribute) => (
+                  <li
+                    key={attribute.attributeId}
+                    className="flex justify-between space-x-2"
+                  >
+                    <span>{attribute.name}:</span>
+                    <span>{attribute.value}</span>
+                  </li>
+                ))}
+              </ul>
+            </PopoverContent>
+          </Popover>
+        ),
+      }
+    ),
     {
       id: "actions",
       header: () => <span className="block text-center">Acciones</span>,
@@ -140,28 +162,28 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ id }) => {
         row: { original: CleanVariant };
       }) => {
         return (
-          <div className=" flex justify-end space-x-2">
-            <Button
+          <div className=" flex justify-end space-x-2 text-xs">
+            <button
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 setVariantToEdit(variant.id);
                 setEditVariant(true);
               }}
-              className="bg-gray-500"
+              className="bg-gray-500 rounded-sm text-xs px-3 py-2 text-gray-100 font-bold"
             >
               Editar
-            </Button>
-            <Button
+            </button>
+            <button
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 onDeleteVariant(variant.id);
               }}
-              className="bg-gray-700"
+              className="bg-gray-700 rounded-sm text-xs px-3 py-2 text-gray-100 font-bold"
             >
               Eliminar
-            </Button>
+            </button>
           </div>
         );
       },
@@ -194,19 +216,19 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ id }) => {
   }
   return (
     <div className="">
-      {product && (
-        <div className="w-full space-x-2 text-xl border-b py-2 px-3 flex items-center">
-          <p>Producto |</p>
+      <div className="flex flex-col w-full bg-gray-500">
+        <div className="flex space-x-5 justify-between">
+          <p>Producto </p>
           <p>{product.product.name}</p>
+        </div>
+        <div className="flex space-x-5 justify-between">
+          <p>Descripcion:</p>
           <p>
-            Descripcion:{" "}
             <span className="font-medium">{product.product.description}</span>
           </p>
-          <Button type="button" onClick={() => setCreateVariant(true)}>
-            Crear variante
-          </Button>
         </div>
-      )}
+      </div>
+
       {/* <div className="w-full items-center px-2 h-12 font-bold border-b border-b-black flex justify-between">
         <div>
           <h1>Variantes del producto</h1>
@@ -235,33 +257,45 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ id }) => {
           </DialogContent>
         </Dialog>
       </div> */}
-      {createVariant && <VariantForm onSubmit={onCreateVariant} />}
-      {editVariant && (
-        <VariantForm idVariant={variantToEdit} onSubmit={onEditVariant} />
-      )}
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button
-            type="button"
-            className="bg-gray-900 text-white rounded-xs cursor-pointer px-3"
-          >
-            Crear variante
-          </Button>
-        </DialogTrigger>
+      {/*Crear variante*/}
+      <Dialog open={createVariant} onOpenChange={(e) => setCreateVariant(e)}>
+        <DialogTrigger></DialogTrigger>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
               Crea una nueva variante de {product?.product.name}
             </DialogTitle>
-            <DialogDescription>
-              This action cannot be undone. This will permanently delete your
-              account and remove your data from our servers.
-            </DialogDescription>
+            <DialogDescription></DialogDescription>
           </DialogHeader>
           <VariantForm onSubmit={onCreateVariant} />
-          {/* TERMINAR EL DISEÑO PARA MOBILE, ES FACIL, NO SEAS ARAGAN Y HACELO. */}
         </DialogContent>
       </Dialog>
+      {/*Editar variante*/}
+      <Dialog open={editVariant} onOpenChange={(e) => setEditVariant(e)}>
+        <DialogTrigger></DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              Editando variante de {product?.product.name}
+            </DialogTitle>
+            <DialogDescription></DialogDescription>
+          </DialogHeader>
+          <VariantForm idVariant={variantToEdit} onSubmit={onEditVariant} />
+        </DialogContent>
+      </Dialog>
+      <FieldSeparator className="my-2" />
+      <div className="w-full flex justify-between px-2">
+        <div className="text-xl font-semibold">
+          <p>Variantes</p>
+        </div>
+        <Button
+          type="button"
+          onClick={() => setCreateVariant(true)}
+          className="rounded-xs text-sm p-2"
+        >
+          Crear variante
+        </Button>
+      </div>
       <DataTable
         columns={columns}
         data={product.product_variants}

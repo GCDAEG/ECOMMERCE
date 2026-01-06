@@ -24,7 +24,7 @@ import { useRouter } from "next/navigation";
 import { EllipsisVertical, Pointer, Settings, Trash } from "lucide-react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Button } from "../button";
-import { DataTable } from "@/components/DataTable";
+import { DataTable } from "@/components/ui/DataTable/DataTable";
 import { Badge } from "../badge";
 
 interface CategorieWithProducts extends Categorie {

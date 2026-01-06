@@ -1,18 +1,18 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 import { CleanProduct } from "./types/dbtypes";
 import { UUID } from "crypto";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 // Utilidad para normalizar texto
 function normalize(str: string) {
   return str
-    .normalize("NFD")                       // elimina tildes
-    .replace(/[\u0300-\u036f]/g, "")        // elimina restos unicode
-    .replace(/[^a-zA-Z0-9]/g, "")           // solo letras/números
+    .normalize("NFD") // elimina tildes
+    .replace(/[\u0300-\u036f]/g, "") // elimina restos unicode
+    .replace(/[^a-zA-Z0-9]/g, "") // solo letras/números
     .toUpperCase();
 }
 
@@ -35,12 +35,12 @@ function attrCode(value: string) {
  */
 export function generateSku(
   productName: string,
-  attributesSelected: { selectedValue: {value:string} }[],
+  attributesSelected: { selectedValue: { value: string } }[],
   suffix?: number
 ) {
   // 1. Código base del producto (3 letras)
   const productCode = normalize(productName).substring(0, 3);
-  console.log("ATRIBUTOS SELECCIONADOS", attributesSelected)
+  console.log("ATRIBUTOS SELECCIONADOS", attributesSelected);
   // 2. Convertimos atributos → códigos
   const attributeCodes = attributesSelected
     .flatMap((att) => attrCode(att.selectedValue.value))
@@ -48,7 +48,7 @@ export function generateSku(
 
   // 3. Unimos todo
   let sku = [productCode, ...attributeCodes].join("-");
-  console.log("SKU CREADO", sku)
+  console.log("SKU CREADO", sku);
   // 4. Sufijo único opcional
   if (suffix !== undefined) {
     sku += "-" + String(suffix).padStart(2, "0");
